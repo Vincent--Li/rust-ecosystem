@@ -1,3 +1,6 @@
+use anyhow::{Context, Result};
+use std::fs;
+
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -20,5 +23,21 @@ struct BigError {
     a: String,
     b: Vec<String>,
     c: [u8; 64],
-    d: u64
+    d: u64,
+}
+
+fn main() -> Result<()> {
+    println!("size of MyError is {}", size_of::<MyError>());
+
+    // 这里能这么做的原因是, Io error 能够转换成MyError
+    let filename = "nonexistent_file.txt";
+    let fd =
+        fs::File::open(filename).with_context(|| format!("can not find file: {}", filename))?;
+    fail_with_error()?;
+
+    Ok(())
+}
+
+fn fail_with_error() -> Result<(), MyError> {
+    Err(MyError::Custom("This is a custom error".to_string()))
 }
