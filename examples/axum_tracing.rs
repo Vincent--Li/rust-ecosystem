@@ -1,18 +1,22 @@
 use std::time::Duration;
 
 use axum::{extract::Request, routing::get, Router};
-use opentelemetry::{trace::{self, TracerProvider as _}, KeyValue};
+use opentelemetry::{
+    trace::{self, TracerProvider as _},
+    KeyValue,
+};
 use opentelemetry_otlp::WithExportConfig;
-use opentelemetry_sdk::{runtime::Tokio, trace::{RandomIdGenerator, Tracer, TracerProvider}, Resource};
+use opentelemetry_sdk::{
+    runtime::Tokio,
+    trace::{RandomIdGenerator, Tracer, TracerProvider},
+    Resource,
+};
 use tokio::{
-    join, net::TcpListener, time::{sleep, Instant}
+    join,
+    net::TcpListener,
+    time::{sleep, Instant},
 };
-use tracing::{
-    debug, info,
-    instrument,
-    level_filters::LevelFilter,
-    warn,
-};
+use tracing::{debug, info, instrument, level_filters::LevelFilter, warn};
 use tracing_subscriber::{
     fmt::{format::FmtSpan, Layer},
     layer::SubscriberExt,
@@ -109,9 +113,9 @@ fn init_tracer() -> anyhow::Result<Tracer> {
         .with_batch_exporter(exporter, Tokio)
         // 给Service命名
         .with_resource(Resource::new(vec![KeyValue::new(
-          "service.name",
-          "axum-tracing",
-      )]))
+            "service.name",
+            "axum-tracing",
+        )]))
         .with_id_generator(RandomIdGenerator::default())
         .with_max_events_per_span(32)
         .with_max_attributes_per_span(64)
