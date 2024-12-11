@@ -82,3 +82,7 @@ cargo nextest 是一个 Rust 增强测试工具。
 cargo install cargo-nextest --locked
 ```
 # rust-ecosystem
+
+
+## jaeger
+docker run -d -p16686:16686 -p4317:4317 -e COLLECTOR_OTLP_ENABLED=true jaegertracing/all-in-one:latest
