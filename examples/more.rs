@@ -6,17 +6,17 @@ struct MyInt(i32);
 
 #[derive(PartialEq, From)]
 struct Point2D {
-  x: i32,
-  y: i32
+    x: i32,
+    y: i32,
 }
 
 #[derive(Debug, PartialEq, From, Add, Display)]
 enum MyEnum {
-  #[display("int: {_0}")]
-  Int(i32),
-  Uint(u32),
-  #[display("nothing")]
-  Nothing,
+    #[display("int: {_0}")]
+    Int(i32),
+    Uint(u32),
+    #[display("nothing")]
+    Nothing,
 }
 
 fn main() -> Result<()> {
@@ -32,5 +32,4 @@ fn main() -> Result<()> {
     println!("e: {}, e1: {}, e2: {}", e, e1, e2);
 
     Ok(())
-
 }
