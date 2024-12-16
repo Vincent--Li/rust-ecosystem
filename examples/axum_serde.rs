@@ -1,7 +1,11 @@
 use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
-use axum::{extract::State, routing::{get, patch}, Json, Router};
+use axum::{
+    extract::State,
+    routing::{get, patch},
+    Json, Router,
+};
 use chrono::{DateTime, Utc};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
