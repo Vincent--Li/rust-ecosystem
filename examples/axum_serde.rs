@@ -41,7 +41,7 @@ async fn main() -> Result<()> {
 
     tracing_subscriber::registry().with(layer).init();
 
-    let addr = "127.0.0.1:3000";
+    let addr = "127.0.0.1:3001";
     let listener = TcpListener::bind(addr).await?;
 
     let user = UserBuilder::default()
