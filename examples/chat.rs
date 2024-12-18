@@ -37,7 +37,15 @@ enum Message {
 #[tokio::main]
 async fn main() -> Result<()> {
     let layer = Layer::new().with_filter(LevelFilter::INFO);
-    tracing_subscriber::registry().with(layer).init();
+
+    // 添加console支持, 需要使用 RUSTFLAGS="--cfg tokio_unstable" cargo build 编译, 然后运行
+    let console_layer = console_subscriber::spawn();
+
+    // 添加tracing
+    tracing_subscriber::registry()
+        .with(console_layer)
+        .with(layer)
+        .init();
 
     let addr = "127.0.0.1:8081";
     let listener = TcpListener::bind(addr).await?;
@@ -72,7 +80,9 @@ async fn handle_client(state: Arc<State>, addr: SocketAddr, stream: TcpStream) -
 
     let mut peer = state.add(addr, username, stream).await;
 
-    state.broadcast(addr, Arc::new(Message::user_joined(&peer.username))).await;
+    state
+        .broadcast(addr, Arc::new(Message::user_joined(&peer.username)))
+        .await;
     info!("{} joined the chat", peer.username);
 
     while let Some(line) = peer.stream.next().await {
@@ -84,7 +94,7 @@ async fn handle_client(state: Arc<State>, addr: SocketAddr, stream: TcpStream) -
             }
         };
 
-        let message = Arc::new( Message::chat(&peer.username, &line));
+        let message = Arc::new(Message::chat(&peer.username, &line));
 
         state.broadcast(addr, message.clone()).await;
     }
@@ -163,11 +173,10 @@ impl Message {
 
 impl Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-      match self {
-          Message::UserJoined(content) => write!(f, "{}", content),
-          Message::UserLeft(content) => write!(f, "{}", content),
-          Message::Chat { sender, content } => write!(f, "{}: {}", sender, content),
-      }
+        match self {
+            Message::UserJoined(content) => write!(f, "{}", content),
+            Message::UserLeft(content) => write!(f, "{}", content),
+            Message::Chat { sender, content } => write!(f, "{}: {}", sender, content),
+        }
     }
 }
-
