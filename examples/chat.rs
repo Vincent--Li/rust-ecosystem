@@ -72,6 +72,9 @@ async fn handle_client(state: Arc<State>, addr: SocketAddr, stream: TcpStream) -
 
     let mut peer = state.add(addr, username, stream).await;
 
+    state.broadcast(addr, Arc::new(Message::user_joined(&peer.username))).await;
+    info!("{} joined the chat", peer.username);
+
     while let Some(line) = peer.stream.next().await {
         let line = match line {
             Ok(line) => line,
@@ -81,15 +84,16 @@ async fn handle_client(state: Arc<State>, addr: SocketAddr, stream: TcpStream) -
             }
         };
 
-        let message = Arc::new( Message::chat(sender, content));
+        let message = Arc::new( Message::chat(&peer.username, &line));
 
         state.broadcast(addr, message.clone()).await;
     }
 
     state.peers.remove(&addr);
 
-    let message = Arc::new(Message::UserLeft(username));
+    let message = Arc::new(Message::user_left(&peer.username));
     state.broadcast(addr, message).await;
+    info!("{} left the chat", peer.username);
 
     Ok(())
 }
@@ -147,10 +151,11 @@ impl Message {
         Self::UserLeft(content)
     }
 
-    fn chat(sender: &str, content: &str) -> Self {
-        let content = format!("{}", content);
+    // impl Into<String> 更广泛的接收可转换成Into类型的参数
+    fn chat(sender: impl Into<String>, content: impl Into<String>) -> Self {
+        let content = format!("{}", content.into());
         Self::Chat {
-            sender: sender.to_string(),
+            sender: sender.into(),
             content,
         }
     }
