@@ -1,7 +1,8 @@
 use anyhow::Result;
 use axum::{
-    extract::{Path, State}, http::{header::LOCATION, HeaderMap, StatusCode}, response::IntoResponse, routing::{get, post}, Json, Router
+    extract::{Path, State}, http::{header::LOCATION, HeaderMap, StatusCode}, response::IntoResponse, routing::{get, post}, Json, Router,
 };
+use axum_macros::debug_handler;
 use derive_builder::Builder;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
@@ -57,7 +58,8 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-// async 不能漏
+// async 不能漏, debug_handler 在axum-macros下面,可以显示具体错误
+#[debug_handler]
 async fn shorten(
     State(state): State<AppState>,
     Json(data): Json<ShortenReq>, // post body 只能consumey一次, 所以要放在最后一个
